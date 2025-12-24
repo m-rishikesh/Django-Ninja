@@ -1,0 +1,85 @@
+<video id="myvideo" width="640" height="360" >
+  <source src="/media/videos.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<div class="controls">
+    <button onclick="playfunc()">Play</button>
+    <button onclick="pausefunc()">Pause</button>
+    <button onclick="start()">Start</button>
+    <button onclick="prevfunc()">-10s</button>
+    <button onclick="nextfunc()">+10s</button>
+</div>
+
+<!-- JAVASCRIPT FROM HERE -->
+<script>
+
+const chatSocket = new WebSocket("ws://"+window.location.host+"/ws/video/room_name");
+
+videoelement = document.getElementById("myvideo")
+
+function playfunc(){
+    chatSocket.send(JSON.stringify({
+        'action':'play',
+        'seconds':videoelement.currentTime
+    }));
+}
+
+function start(){
+    chatSocket.send(JSON.stringify({
+        'action':'start',
+        'seconds':videoelement.currentTime
+    }));
+}
+
+function pausefunc(){
+    chatSocket.send(JSON.stringify({
+        'action':'pause',
+        'seconds':videoelement.currentTime,
+    }));
+}
+
+function prevfunc(){
+    chatSocket.send(JSON.stringify({
+        'action':'play',
+        'seconds':videoelement.currentTime - 10
+    }));
+}
+
+function nextfunc(){
+    chatSocket.send(JSON.stringify({
+        'action':'play',
+        'seconds':videoelement.currentTime + 10
+    }));
+}
+
+// When Server BroadCast update the player
+
+chatSocket.onmessage = (e) =>{
+    const data = JSON.parse(e.data);
+
+    // updating the time
+    if (Math.abs(videoelement.currentTime - data.seconds) > 1){
+        videoelement.currentTime = data.seconds
+    }
+
+    if(data.action === 'sync'){
+        console.log("syncing the player")
+        videoelement.currentTime = data.seconds+0.6
+        if (data.playing){
+            videoelement.play()
+        } 
+    }
+
+    if(data.action === "play"){
+        videoelement.play()
+    }
+    else if(data.action === "pause"){
+        videoelement.pause()
+    }
+    else if(data.action === "start"){
+        videoelement.currentTime =0
+        videoelement.play()
+    }
+}
+</script>

@@ -10,7 +10,14 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/asgi/
 import os
 
 from django.core.asgi import get_asgi_application
-
+from channels.routing import ProtocolTypeRouter,URLRouter
+from chat.routing import ws_urlpatterns
+from watchtogether.routing import wt_urlpattern
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ninjademo.settings')
 
-application = get_asgi_application()
+http_application = get_asgi_application()
+
+application = ProtocolTypeRouter({
+    "http":http_application,
+    "websocket": URLRouter(ws_urlpatterns+wt_urlpattern),
+})

@@ -1,0 +1,33 @@
+<div id="chat-box" style="border: 1px solid black; height: 300px; overflow-y: scroll;">
+    </div>
+<input id="name-input" type="text" placeholder="Type Your Name">
+<input id="chat-input" type="text" placeholder="Type a message...">
+<button id="send-btn">Send</button>
+
+<script>
+    // 1. Establish the WebSocket connection
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/');
+
+    // 2. Handle incoming messages from the server
+    socket.onmessage = function(e) {
+        const data = e.data;
+        const chatBox = document.querySelector('#chat-box');
+        // Add the server's message to the UI
+        chatBox.innerHTML += `<p> ${data}</p>`;
+    };
+
+    // 3. Handle sending messages
+    document.querySelector('#send-btn').onclick = function() {
+        const input = document.querySelector('#chat-input');
+        const name = document.querySelector('#name-input');
+        const message = input.value;
+        const username = name.value;
+        
+        // Send to server
+        socket.send(JSON.stringify({'message': message,'username':username}));
+        
+        // Show your own message locally
+        document.querySelector('#chat-box').innerHTML += `<p><b>Me:</b> ${message}</p>`;
+        input.value = '';
+    };
+</script>

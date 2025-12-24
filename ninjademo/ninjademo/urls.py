@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 from .api import api
 from django.conf import settings
 from django.conf.urls.static import static
@@ -7,6 +7,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/',api.urls),
+    path('chat/',include("chat.urls")),
+    path('wt/',include("watchtogether.urls")),
 ]
 
 if settings.DEBUG:
